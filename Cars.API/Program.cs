@@ -1,4 +1,9 @@
 using Cars.Infrastructure;
+using Cars.API.Middleware;
+using Cars.Application.Cars;
+using Cars.Application.Common.Behaviors;
+using FluentValidation;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,7 +18,19 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
+builder.Services.AddMediatR(cfg =>
+{
+    cfg.RegisterServicesFromAssembly(typeof(GetCarsList.Handler).Assembly);
+});
+
+builder.Services.AddValidatorsFromAssemblyContaining<Create.CommandValidator>();
+
+builder.Services.AddTransient(
+    typeof(IPipelineBehavior<,>),
+    typeof(ValidationBehavior<,>));
+
 var app = builder.Build();
+app.UseMiddleware<ApiExceptionMiddleware>();
 // Pobranie dostępu do serwisów w celu uruchomienia bazy danych
 using var scope = app.Services.CreateScope();
 var services = scope.ServiceProvider;
