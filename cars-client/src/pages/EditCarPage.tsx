@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router';
 import CarForm from '../components/CarForm';
 import type { Car, NewCar } from '../models/Car';
 import { getCarById, updateCar } from '../services/carService';
+import axios from 'axios';
 
 export default function EditCarPage() {
   const { id } = useParams();
@@ -22,7 +23,7 @@ export default function EditCarPage() {
         const data = await getCarById(carId, controller.signal);
         setCar(data);
       } catch (err) {
-        if (err instanceof DOMException && err.name === 'AbortError') return;
+        if (axios.isCancel(err)) return;
         setError(err instanceof Error ? err.message : 'Nie udało się pobrać danych do edycji.');
       } finally {
         setIsLoading(false);

@@ -29,7 +29,18 @@ builder.Services.AddTransient(
     typeof(IPipelineBehavior<,>),
     typeof(ValidationBehavior<,>));
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", policy =>
+    {
+        policy.AllowAnyHeader()
+              .AllowAnyMethod()
+              .WithOrigins("http://localhost:5173");
+    });
+});
+
 var app = builder.Build();
+app.UseCors("CorsPolicy");
 app.UseMiddleware<ApiExceptionMiddleware>();
 // Pobranie dostępu do serwisów w celu uruchomienia bazy danych
 using var scope = app.Services.CreateScope();
